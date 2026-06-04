@@ -1,0 +1,359 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Impeccable + Perspective + Paper tokens ─── */
+:root {
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+
+  --dur-fast:   150ms;
+  --dur-normal: 250ms;
+  --dur-slow:   400ms;
+
+  /* Impeccable amber + burnt orange */
+  --amber:       #CC8800;
+  --burnt:       #C55221;
+  --amber-light: rgba(204,136,0,0.10);
+  --burnt-light: rgba(197,82,33,0.10);
+
+  /* Paper texture */
+  --paper-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+
+  /* Perspective vanishing-point grid */
+  --perspective-grid: repeating-linear-gradient(
+    90deg, rgba(204,136,0,0.05) 0px, transparent 1px, transparent 80px
+  ), repeating-linear-gradient(
+    0deg, rgba(204,136,0,0.05) 0px, transparent 1px, transparent 80px
+  );
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: clamp(15px, 0.9rem + 0.25vw, 17px);
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', system-ui, sans-serif;
+    background: #faf9f6;
+    color: #111111;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  #root { width: 100%; max-width: 100%; text-align: left; }
+
+  /* ── ui-ux-pro-max: touch-action + cursor + focus rings ── */
+  button, [role="button"], a, label[for], select, input[type="checkbox"], input[type="radio"] {
+    touch-action: manipulation; /* removes 300ms tap delay — rule: tap-delay */
+    cursor: pointer;            /* rule: cursor-pointer */
+  }
+
+  /* Visible focus ring — rule: focus-states (2px, high contrast) */
+  :focus-visible {
+    outline: 2px solid #C55221;
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  /* Don't show ring for mouse users */
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Skip-to-main — rule: skip-links */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: #C55221;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0 0 4px 4px;
+    transition: top 0.15s;
+  }
+  .skip-link:focus { top: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+
+  /* ── Impeccable editorial section tags ── */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    background: var(--amber-light);
+    color: #b07500;
+    border: 1px solid rgba(204,136,0,0.25);
+    margin-bottom: 1rem;
+  }
+  .section-tag-teal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    background: rgba(0,189,125,0.08);
+    color: #007a55;
+    border: 1px solid rgba(0,189,125,0.22);
+    margin-bottom: 1rem;
+  }
+
+  /* ── Impeccable Space Grotesk display headings ── */
+  .section-heading {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-size: clamp(2rem, 1.4rem + 3vw, 3rem);
+    font-weight: 700;
+    line-height: 1.05;
+    /* Refactoring UI: reduce letter-spacing on large display text */
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  /* taste-skill: off-white not pure #fff; off-black not #000 */
+  .section-heading-light { color: #f6f1e9; }
+  .section-heading-ink   { color: #16110c; }
+
+  .section-sub {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #7a7068;
+    margin-top: 0.875rem;
+    /* Refactoring UI: 45-75 char line length for optimal readability */
+    max-width: 58ch;
+  }
+  .section-sub-light {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.55);
+    margin-top: 0.875rem;
+    max-width: 58ch;
+  }
+
+  /* ── Impeccable burnt-orange editorial rule ── */
+  .editorial-rule {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .editorial-rule::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 3px;
+    background: var(--burnt);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Buttons — Impeccable high-contrast ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: #C55221;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #a84419, 0 4px 16px rgba(197,82,33,0.30);
+    transition: transform var(--dur-normal) var(--ease-spring),
+                box-shadow var(--dur-normal) var(--ease-standard),
+                background var(--dur-normal) var(--ease-standard);
+  }
+  .btn-primary:hover {
+    background: #d96a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #a84419, 0 8px 28px rgba(197,82,33,0.35);
+  }
+  .btn-primary:active { transform: scale(0.96) translateY(0); }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #111111;
+    background: transparent;
+    border: 2px solid #111111;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--dur-normal) var(--ease-spring),
+                background var(--dur-normal) var(--ease-standard),
+                color var(--dur-normal) var(--ease-standard);
+  }
+  .btn-outline:hover { background: #111111; color: #ffffff; transform: translateY(-1px); }
+  .btn-outline:active { transform: scale(0.96); }
+
+  .btn-outline-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.50);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--dur-normal) var(--ease-spring),
+                background var(--dur-normal) var(--ease-standard),
+                color var(--dur-normal) var(--ease-standard),
+                border-color var(--dur-normal) var(--ease-standard);
+  }
+  .btn-outline-white:hover { background: #ffffff; color: #111111; border-color: #ffffff; transform: translateY(-1px); }
+  .btn-outline-white:active { transform: scale(0.96); }
+
+  /* ── Paper card — Refactoring UI depth + always-on accent bar ── */
+  .card-paper {
+    background: #fefdfb;
+    border: 1px solid #e8e3db;
+    border-top: none; /* top-border handled by ::before */
+    border-radius: 6px;
+    padding: 1.5rem;
+    position: relative;
+    /* Refactoring UI two-layer shadow: ambient (general depth) + occlusion (near object) */
+    box-shadow:
+      0 1px 2px rgba(17,11,5,0.07),           /* occlusion — tight, dark */
+      0 6px 16px rgba(17,11,5,0.05);           /* ambient — large, soft */
+    transition: transform var(--dur-normal) var(--ease-spring),
+                box-shadow var(--dur-normal) var(--ease-standard),
+                border-color var(--dur-normal) var(--ease-standard);
+  }
+  .card-paper:hover {
+    transform: translateY(-3px) translateX(-1px);
+    border-color: rgba(197,82,33,0.25);
+    /* Lift increases both layers — Refactoring UI raised element */
+    box-shadow:
+      0 2px 4px rgba(17,11,5,0.08),
+      0 12px 32px rgba(17,11,5,0.09),
+      0 24px 48px rgba(17,11,5,0.05);
+  }
+
+  /* Refactoring UI: "a colorful 4px top-border to a bland card for personality" — always visible */
+  .card-paper::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--burnt) 0%, var(--amber) 60%, transparent 100%);
+    border-radius: 6px 6px 0 0;
+    opacity: 0.5;
+    transition: opacity var(--dur-normal) var(--ease-standard);
+  }
+  .card-paper:hover::before { opacity: 1; }
+
+  /* Paper backgrounds */
+  .bg-paper      { background-color: #faf9f6; background-image: var(--paper-noise); }
+  .bg-paper-warm { background-color: #f3f0eb; background-image: var(--paper-noise); }
+
+  /* Charcoal dark section */
+  .bg-charcoal-section { background-color: #1c1917; }
+
+  /* Glassmorphism for dark sections */
+  .glass-charcoal {
+    background: rgba(28, 25, 23, 0.85);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Refactoring UI raised-element — light top border + dark bottom shadow */
+  .raised {
+    box-shadow:
+      0 -1px 0 0 rgba(255,255,255,0.15) inset, /* light top highlight */
+      0 1px 3px rgba(17,11,5,0.15),             /* occlusion */
+      0 4px 12px rgba(17,11,5,0.08);            /* ambient */
+  }
+
+  /* Impeccable amber number display */
+  .stat-number {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.2rem, 1.5rem + 3vw, 3.2rem);
+    line-height: 1;
+    color: #111111;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ── Typing indicator ── */
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.2; transform: translateY(0); }
+  30%            { opacity: 1;   transform: translateY(-4px); }
+}
+.typing-dot { animation: typing-dot 1.2s ease-in-out infinite; display: inline-block; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── Perspective grid ── */
+.perspective-grid { background-image: var(--perspective-grid); }
+
+/* ── Skeleton loading shimmer ──────────────────────────────────────────── */
+@keyframes sk-shimmer { 100% { transform: translateX(100%); } }
+
+.sk {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06); /* default: on dark surfaces */
+}
+.sk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.10), transparent);
+  animation: sk-shimmer 1.6s infinite;
+}
+/* light-surface variant (cream sections) */
+.sk-light { background: rgba(17, 11, 5, 0.07); }
+.sk-light::after {
+  background: linear-gradient(90deg, transparent, rgba(17, 11, 5, 0.05), transparent);
+}

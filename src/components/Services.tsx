@@ -1,0 +1,173 @@
+import { type ReactNode } from 'react'
+import { motion, type Variants, useReducedMotion } from 'framer-motion'
+import { GlowCard } from '@/components/ui/spotlight-card'
+
+interface Service { icon: ReactNode; title: string; desc: string; tag: string; featured?: boolean }
+
+const services: Service[] = [
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    ),
+    title: 'Cinematic Video Production',
+    desc: 'Hollywood-grade drone footage, interior walkthroughs, and twilight shoots that make your properties irresistible. We turn every listing into a visual story buyers fall in love with before they visit.',
+    tag: 'Most Popular',
+    featured: true,
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+      </svg>
+    ),
+    title: 'Facebook Ads Management',
+    desc: 'Hyper-targeted campaigns reaching verified home-seekers in Patna and surrounding cities. We manage creative, budget, and A/B testing so you get maximum leads at minimum cost.',
+    tag: 'High ROI',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+      </svg>
+    ),
+    title: 'AR Property Viewer',
+    desc: 'Let buyers walk through your property from their phone before leaving home. Our AR viewer reduces site-visit drop-offs by 60% and pre-qualifies serious buyers automatically.',
+    tag: 'Cutting Edge',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      </svg>
+    ),
+    title: 'Virtual Staging',
+    desc: 'Transform bare spaces into beautifully styled interiors with AI-powered virtual staging. Buyers see the full potential of every room without costly physical staging or delays.',
+    tag: '48hr Delivery',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+      </svg>
+    ),
+    title: 'Automated Follow-up',
+    desc: 'Never lose a lead to slow follow-up again. Our AI sends personalised WhatsApp and email messages within minutes of every enquiry, nurturing prospects 24/7 on full autopilot.',
+    tag: 'AI-Powered',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
+      </svg>
+    ),
+    title: 'Agent Website Development',
+    desc: 'Premium, mobile-first websites for Patna agents and developers, with lead capture, property listings, and WhatsApp integration built in from day one.',
+    tag: 'Custom Built',
+  },
+]
+
+/* Card stagger — rule: stagger-sequence 40–70ms */
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.06 } },
+}
+const item: Variants = {
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 240, damping: 26 } },
+}
+
+export default function Services() {
+  const prefersReduced = useReducedMotion()
+
+  return (
+    /* Dark charcoal section — spotlight glow cards need a dark base */
+    <section id="services" className="relative py-24 bg-charcoal-section overflow-hidden">
+      {/* Faint vanishing-point grid */}
+      <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-30 pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
+
+        {/* ── Section header — fade + rise ── */}
+        <motion.div
+          initial={{ opacity: 0, y: prefersReduced ? 0 : 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 28 }}
+          className="max-w-xl mb-16"
+        >
+          <div className="section-tag">Our Services</div>
+
+          <h2 className="section-heading section-heading-light">
+            Everything You Need to{' '}
+            <span className="text-burnt-400">Sell Faster</span>
+          </h2>
+
+          <p className="section-sub-light">
+            From first impression to final signature, our complete marketing stack is built for the modern Indian real estate market.
+          </p>
+        </motion.div>
+
+        {/* ── Card grid — stagger fade ── */}
+        <motion.div
+          variants={prefersReduced ? undefined : container}
+          initial={prefersReduced ? { opacity: 1 } : 'hidden'}
+          whileInView={prefersReduced ? { opacity: 1 } : 'show'}
+          viewport={{ once: true, amount: 0.08 }}
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {services.map((s) => (
+            <motion.div key={s.title} variants={prefersReduced ? undefined : item}>
+              <GlowCard
+                glowColor={s.featured ? 'amber' : 'orange'}
+                customSize
+                className="w-full !h-full min-h-[280px] !grid-rows-none flex flex-col gap-4 !p-6 group"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="w-11 h-11 rounded flex items-center justify-center bg-burnt-500/15 text-burnt-400 ring-1 ring-burnt-500/20">
+                    {s.icon}
+                  </div>
+                  <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded border ${
+                      s.featured
+                        ? 'bg-burnt-500 text-white border-burnt-500'
+                        : 'bg-white/5 text-white/55 border-white/10'
+                    }`}
+                    style={{ fontFamily: 'JetBrains Mono, monospace' }}
+                  >
+                    {s.tag}
+                  </span>
+                </div>
+
+                <div>
+                  <h3
+                    className="text-white font-black text-base mb-2"
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p className="text-white/55 text-sm leading-relaxed">{s.desc}</p>
+                </div>
+
+                <a
+                  href="#contact"
+                  className="mt-auto text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all text-burnt-400"
+                  style={{ fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '0.03em', textTransform: 'uppercase', fontSize: '0.7rem' }}
+                >
+                  Learn more
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </GlowCard>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
