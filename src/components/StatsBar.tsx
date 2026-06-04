@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 
-const stats = [
-  { value: 240,  suffix: '+', label: 'Properties Marketed' },
-  { value: 8400, suffix: '+', label: 'Leads Generated' },
-  { value: 3200, suffix: '+', label: 'AR Sessions Delivered' },
-  { value: 89,   suffix: '%', label: 'Faster Response Rate' },
+/* Capability stats — true on day one for a brand-new firm (no fabricated traction) */
+interface Stat {
+  value?: number   // animated count-up (optional)
+  prefix?: string
+  suffix?: string
+  static?: string  // non-numeric display (e.g. "24/7")
+  label: string
+}
+
+const stats: Stat[] = [
+  { value: 48, suffix: 'hr', label: 'Video Delivery' },
+  { static: '24/7',          label: 'AI Lead Follow-Up' },
+  { value: 2, prefix: '<', suffix: ' min', label: 'Lead Response Time' },
+  { value: 100, suffix: '%', label: 'Done-For-You Service' },
 ]
 
-function Counter({ target, suffix }: { target: number; suffix: string }) {
+function Counter({ target, prefix = '', suffix = '' }: { target: number; prefix?: string; suffix?: string }) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const started = useRef(false)
@@ -20,11 +29,11 @@ function Counter({ target, suffix }: { target: number; suffix: string }) {
       if (entry.isIntersecting && !started.current) {
         started.current = true
         const start = performance.now()
-        const duration = 1800
+        const duration = 1600
         const tick = (now: number) => {
           const p = Math.min((now - start) / duration, 1)
           const eased = 1 - Math.pow(1 - p, 3)
-          setCount(Math.floor(eased * target))
+          setCount(Math.round(eased * target))
           if (p < 1) requestAnimationFrame(tick)
           else setCount(target)
         }
@@ -37,7 +46,7 @@ function Counter({ target, suffix }: { target: number; suffix: string }) {
 
   return (
     <span ref={ref} className="stat-number">
-      {count.toLocaleString('en-IN')}{suffix}
+      {prefix}{count}{suffix}
     </span>
   )
 }
@@ -57,9 +66,9 @@ export default function StatsBar() {
         >
           {stats.map((s, i) => (
             <div key={i} className="flex flex-col items-center lg:items-start lg:px-8 first:pl-0 gap-2 text-center lg:text-left">
-              {prefersReduced
-                ? <span className="stat-number">{s.value.toLocaleString('en-IN')}{s.suffix}</span>
-                : <Counter target={s.value} suffix={s.suffix} />
+              {s.static !== undefined || prefersReduced || s.value === undefined
+                ? <span className="stat-number">{s.static ?? `${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}</span>
+                : <Counter target={s.value} prefix={s.prefix} suffix={s.suffix} />
               }
               {/* Refactoring UI: weaken the label so the number dominates hierarchy */}
               <span

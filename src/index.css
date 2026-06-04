@@ -34,6 +34,8 @@
 
   html {
     scroll-behavior: smooth;
+    /* offset anchor jumps so sections land BELOW the fixed 64px navbar */
+    scroll-padding-top: 5rem;
     font-size: clamp(15px, 0.9rem + 0.25vw, 17px);
   }
 
@@ -45,6 +47,9 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
+
+  /* each anchored section also reserves nav clearance (belt + braces) */
+  section[id] { scroll-margin-top: 5rem; }
 
   #root { width: 100%; max-width: 100%; text-align: left; }
 
@@ -126,14 +131,17 @@
     margin-bottom: 1rem;
   }
 
-  /* ── Impeccable Space Grotesk display headings ── */
-  .section-heading {
+  /* ── Space Grotesk display headings ──
+     NOTE: components use the -light / -ink variants ALONE, so the full
+     typography MUST live on each variant (not only on .section-heading). */
+  .section-heading,
+  .section-heading-light,
+  .section-heading-ink {
     font-family: 'Space Grotesk', system-ui, sans-serif;
     font-size: clamp(2rem, 1.4rem + 3vw, 3rem);
     font-weight: 700;
     line-height: 1.05;
-    /* Refactoring UI: reduce letter-spacing on large display text */
-    letter-spacing: -0.01em;
+    letter-spacing: -0.01em; /* Refactoring UI: tighter tracking on large text */
     text-transform: uppercase;
   }
   /* taste-skill: off-white not pure #fff; off-black not #000 */
@@ -155,7 +163,7 @@
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.7;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.70); /* contrast: was 0.55, now AA-comfortable on charcoal */
     margin-top: 0.875rem;
     max-width: 58ch;
   }
@@ -302,6 +310,45 @@
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ── Liquid-glass surface — same signature inset-ring as the LiquidButton ── */
+  .liquid-glass-surface {
+    background: rgba(20, 18, 16, 0.50);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow:
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.18),   /* top-left inner highlight */
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.10),
+      inset 0 0 8px 4px rgba(255,255,255,0.04),          /* inner sheen */
+      0 8px 28px rgba(0,0,0,0.28);                        /* drop shadow */
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: background var(--dur-normal) var(--ease-standard),
+                box-shadow var(--dur-normal) var(--ease-standard);
+  }
+  .liquid-glass-surface[data-scrolled="true"] {
+    background: rgba(16, 14, 13, 0.72);
+    box-shadow:
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.20),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.10),
+      inset 0 0 8px 4px rgba(255,255,255,0.05),
+      0 12px 36px rgba(0,0,0,0.40);
+  }
+
+  /* animated top sheen line — futuristic accent that sweeps across the bar */
+  .glass-sheen {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(204,136,0,0.7), rgba(197,82,33,0.7), transparent);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    animation: sheen-sweep 6s linear infinite;
+    opacity: 0.8;
+  }
+  @keyframes sheen-sweep {
+    0%   { background-position: -60% 0; }
+    100% { background-position: 160% 0; }
   }
 
   /* Refactoring UI raised-element — light top border + dark bottom shadow */

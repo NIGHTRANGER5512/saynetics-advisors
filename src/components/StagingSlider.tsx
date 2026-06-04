@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import { ScrambleHeading } from '@/components/ui/scramble-heading'
 
 export default function StagingSlider() {
   const prefersReduced = useReducedMotion()
@@ -56,7 +57,7 @@ export default function StagingSlider() {
           >
             {/* graphic rule instead of an eyebrow label (taste-skill: limit eyebrows) */}
             <div className="editorial-rule" aria-hidden="true" />
-            <h2 className="section-heading-ink">From Empty Shell to Dream Home in 48 Hours</h2>
+            <ScrambleHeading as="h2" className="section-heading-ink" text="From Empty Shell to Dream Home in 48 Hours" highlight="48 Hours" />
             <p className="section-sub">
               Our AI-powered virtual staging removes the guesswork for buyers. See any unfurnished space transformed into a fully styled interior, ready to share online, in ads, or on WhatsApp.
             </p>

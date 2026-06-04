@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { motion, type Variants, useReducedMotion } from 'framer-motion'
 import { GlowCard } from '@/components/ui/spotlight-card'
+import { ScrambleHeading } from '@/components/ui/scramble-heading'
 
 interface Service { icon: ReactNode; title: string; desc: string; tag: string; featured?: boolean }
 
@@ -11,20 +12,10 @@ const services: Service[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
       </svg>
     ),
-    title: 'Cinematic Video Production',
-    desc: 'Hollywood-grade drone footage, interior walkthroughs, and twilight shoots that make your properties irresistible. We turn every listing into a visual story buyers fall in love with before they visit.',
+    title: 'AI Cinematic Videography',
+    desc: 'Photorealistic, AI-generated property films and walkthroughs, created from your photos with no film crew or location delays. We turn your listing into a cinematic video tour buyers fall in love with before they ever visit.',
     tag: 'Most Popular',
     featured: true,
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-      </svg>
-    ),
-    title: 'Facebook Ads Management',
-    desc: 'Hyper-targeted campaigns reaching verified home-seekers in Patna and surrounding cities. We manage creative, budget, and A/B testing so you get maximum leads at minimum cost.',
-    tag: 'High ROI',
   },
   {
     icon: (
@@ -33,7 +24,7 @@ const services: Service[] = [
       </svg>
     ),
     title: 'AR Property Viewer',
-    desc: 'Let buyers walk through your property from their phone before leaving home. Our AR viewer reduces site-visit drop-offs by 60% and pre-qualifies serious buyers automatically.',
+    desc: 'Let buyers walk through your property from their phone before leaving home. Our AR viewer is built to cut wasted site visits and pre-qualify serious buyers automatically.',
     tag: 'Cutting Edge',
   },
   {
@@ -63,19 +54,20 @@ const services: Service[] = [
       </svg>
     ),
     title: 'Agent Website Development',
-    desc: 'Premium, mobile-first websites for Patna agents and developers, with lead capture, property listings, and WhatsApp integration built in from day one.',
+    desc: 'Premium, mobile-first websites for agents and developers, with lead capture, property listings, and WhatsApp integration built in from day one.',
     tag: 'Custom Built',
   },
 ]
 
-/* Card stagger — rule: stagger-sequence 40–70ms */
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.06 } },
+/* ── Shutter reveal — horizontal slats retract upward to unveil each card ── */
+const SLATS = 6
+const shutterParent: Variants = {
+  closed: {},
+  open: { transition: { staggerChildren: 0.05 } },
 }
-const item: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 240, damping: 26 } },
+const slat: Variants = {
+  closed: { scaleY: 1 },
+  open:   { scaleY: 0, transition: { duration: 0.5, ease: [0.7, 0, 0.3, 1] } },
 }
 
 export default function Services() {
@@ -99,26 +91,30 @@ export default function Services() {
         >
           <div className="section-tag">Our Services</div>
 
-          <h2 className="section-heading section-heading-light">
-            Everything You Need to{' '}
-            <span className="text-burnt-400">Sell Faster</span>
-          </h2>
+          <ScrambleHeading
+            as="h2"
+            className="section-heading-light"
+            text="Everything You Need to Sell Faster"
+            highlight="Sell Faster"
+          />
 
           <p className="section-sub-light">
             From first impression to final signature, our complete marketing stack is built for the modern Indian real estate market.
           </p>
         </motion.div>
 
-        {/* ── Card grid — stagger fade ── */}
-        <motion.div
-          variants={prefersReduced ? undefined : container}
-          initial={prefersReduced ? { opacity: 1 } : 'hidden'}
-          whileInView={prefersReduced ? { opacity: 1 } : 'show'}
-          viewport={{ once: true, amount: 0.08 }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {services.map((s) => (
-            <motion.div key={s.title} variants={prefersReduced ? undefined : item}>
+        {/* ── Card grid — each card unveils with a camera-shutter reveal ── */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((s, i) => (
+            <motion.div
+              key={s.title}
+              className="relative overflow-hidden rounded-xl"
+              initial={prefersReduced ? false : 'closed'}
+              whileInView={prefersReduced ? undefined : 'open'}
+              viewport={{ once: true, amount: 0.3 }}
+              variants={shutterParent}
+              transition={{ delayChildren: i * 0.08 }}
+            >
               <GlowCard
                 glowColor={s.featured ? 'amber' : 'orange'}
                 customSize
@@ -150,7 +146,7 @@ export default function Services() {
                   >
                     {s.title}
                   </h3>
-                  <p className="text-white/55 text-sm leading-relaxed">{s.desc}</p>
+                  <p className="text-white/70 text-sm leading-relaxed">{s.desc}</p>
                 </div>
 
                 <a
@@ -164,9 +160,23 @@ export default function Services() {
                   </svg>
                 </a>
               </GlowCard>
+
+              {/* Shutter slats — collapse upward, top-to-bottom, to reveal the card */}
+              {!prefersReduced && (
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 flex flex-col rounded-xl overflow-hidden">
+                  {Array.from({ length: SLATS }).map((_, k) => (
+                    <motion.div
+                      key={k}
+                      variants={slat}
+                      style={{ originY: 0 }}
+                      className="flex-1 bg-charcoal-900 border-b border-burnt-500/15 last:border-b-0"
+                    />
+                  ))}
+                </div>
+              )}
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

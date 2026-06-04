@@ -15,14 +15,14 @@ export default function Footer() {
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Saynetics</span>
             </a>
             {/* Refactoring UI: weaken secondary copy with light weight so brand name dominates */}
-            <p className="text-white/40 text-sm leading-relaxed font-light" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              Patna's premier AI-powered real estate marketing studio, turning listings into sold properties.
+            <p className="text-white/55 text-sm leading-relaxed font-light" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              A premier AI-powered real estate marketing studio, turning listings into sold properties.
             </p>
             {/* Burnt accent line — single locked accent */}
             <div className="mt-6 flex items-center gap-2">
               <div className="w-8 h-0.5 bg-burnt-500" />
               <span className="text-burnt-400 text-xs tracking-widest uppercase"
-                style={{ fontFamily: 'JetBrains Mono, monospace' }}>Est. 2024, Patna</span>
+                style={{ fontFamily: 'JetBrains Mono, monospace' }}>Est. 2024</span>
             </div>
           </div>
 
@@ -31,9 +31,9 @@ export default function Footer() {
             <h4 className="text-white/80 text-xs font-semibold tracking-widest uppercase mb-5"
               style={{ fontFamily: 'JetBrains Mono, monospace' }}>Services</h4>
             <ul className="flex flex-col gap-2.5">
-              {['Cinematic Video Production', 'Facebook Ads Management', 'AR Property Viewer', 'Virtual Staging', 'Automated Follow-up System', 'Agent Website Development'].map(s => (
+              {['AI Cinematic Videography', 'AR Property Viewer', 'Virtual Staging', 'Automated Follow-up System', 'Agent Website Development'].map(s => (
                 <li key={s}>
-                  <a href="#services" className="text-white/40 hover:text-white text-sm transition-colors">{s}</a>
+                  <a href="#services" className="text-white/55 hover:text-white text-sm transition-colors">{s}</a>
                 </li>
               ))}
             </ul>
@@ -46,10 +46,34 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {['About', 'Contact', 'Privacy Policy'].map(l => (
                 <li key={l}>
-                  <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">{l}</a>
+                  <a href="#" className="text-white/55 hover:text-white text-sm transition-colors">{l}</a>
                 </li>
               ))}
             </ul>
+
+            {/* Phone + WhatsApp contact */}
+            <div className="mt-5 flex flex-col gap-2.5">
+              <a
+                href="tel:+919234682722"
+                className="flex items-center gap-2 text-white/55 hover:text-white text-sm transition-colors"
+              >
+                <svg className="w-4 h-4 text-burnt-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                </svg>
+                +91 92346 82722
+              </a>
+              <a
+                href="https://wa.me/919234682722?text=Hi%20Saynetics%2C%20I%20want%20to%20know%20more%20about%20your%20services!"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-white/55 hover:text-white text-sm transition-colors"
+              >
+                <svg className="w-4 h-4 text-[#25D366] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" />
+                </svg>
+                WhatsApp us
+              </a>
+            </div>
           </div>
 
           {/* Social */}
@@ -65,7 +89,7 @@ export default function Footer() {
               ].map(s => (
                 /* rule: touch-target-size min 44x44px; aria-label for icon-only links */
                 <a key={s.label} href="#" aria-label={`Follow Saynetics on ${s.label}`}
-                  className="w-11 h-11 rounded border border-white/12 text-white/40 hover:text-white hover:border-burnt-500/40 hover:bg-burnt-500/8 flex items-center justify-center transition-all">
+                  className="w-11 h-11 rounded border border-white/12 text-white/55 hover:text-white hover:border-burnt-500/40 hover:bg-burnt-500/8 flex items-center justify-center transition-all">
                   <span aria-hidden="true">{s.icon}</span>
                 </a>
               ))}
@@ -76,7 +100,7 @@ export default function Footer() {
         <div className="border-t border-white/8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/25"
           style={{ fontFamily: 'JetBrains Mono, monospace' }}>
           <span>© {year} Saynetics Advisors. All rights reserved.</span>
-          <span>Made with care in Patna, Bihar</span>
+          <span>Made with care for modern real estate</span>
         </div>
       </div>
     </footer>

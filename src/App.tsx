@@ -66,13 +66,12 @@ export default function App() {
       <Footer />
 
       {/* ── Floating WhatsApp CTA ── */}
-      {/* Replace 917999999999 with your real WhatsApp Business number (country code + number, no +) */}
       <a
-        href="https://wa.me/917999999999?text=Hi%20Saynetics%2C%20I%20want%20to%20know%20more%20about%20your%20real%20estate%20marketing%20services!"
+        href="https://wa.me/919234682722?text=Hi%20Saynetics%2C%20I%20want%20to%20know%20more%20about%20your%20real%20estate%20marketing%20services!"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with Saynetics on WhatsApp"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg hover:bg-[#20bc5a] hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 group"
+        className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-40 flex items-center gap-2.5 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg hover:bg-[#20bc5a] hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 group"
         style={{ boxShadow: '0 4px 20px rgba(37,211,102,0.4)' }}
       >
         <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

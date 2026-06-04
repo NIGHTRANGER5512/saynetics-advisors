@@ -1,14 +1,10 @@
-import { useEffect, useRef, Suspense, lazy } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
-
-/* Lazy-load the Unicorn Studio background — splits the heavy WebGL SDK
-   (~1.7MB) into its own chunk so it never blocks first paint */
-const RaycastAnimatedBackground = lazy(() =>
-  import('@/components/ui/raycast-animated-background').then(m => ({
-    default: m.RaycastAnimatedBackground,
-  }))
-)
+import { ScrambleHeading } from '@/components/ui/scramble-heading'
+/* Direct import (lightweight self-contained WebGL shader) so the hero
+   background is ALWAYS visible — no lazy chunk that could fail to load */
+import { RaycastAnimatedBackground } from '@/components/ui/raycast-animated-background'
 
 interface Particle {
   x: number; y: number; vx: number; vy: number; r: number
@@ -99,24 +95,14 @@ export default function Hero() {
       aria-label="Saynetics Advisors hero"
       className="relative min-h-[100dvh] flex items-center overflow-hidden bg-charcoal-section"
     >
-      {/* ── Layer 0: Unicorn Studio animated background (lazy), palette-shifted to burnt/amber.
-             Fallback is a static charcoal gradient so the hero looks intentional while it loads ── */}
-      <Suspense
-        fallback={
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_45%_45%,#28241f_0%,#1c1917_55%,#0f0e0d_100%)]"
-          />
-        }
-      >
-        <RaycastAnimatedBackground />
-      </Suspense>
+      {/* ── Layer 0: WebGL fractal-noise shader, charcoal→burnt→amber ── */}
+      <RaycastAnimatedBackground />
 
       {/* Vanishing-point grid on top of animation */}
-      <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-20" />
+      <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-15" />
 
-      {/* Lighter text-readability scrim — only darkens behind the copy (left), lets the animation breathe on the right */}
-      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(100deg,rgba(15,14,13,0.78)_0%,rgba(15,14,13,0.45)_45%,rgba(15,14,13,0.15)_100%)]" />
+      {/* Text-readability scrim — darker behind the copy (left), lets the shader breathe on the right */}
+      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(100deg,rgba(15,14,13,0.72)_0%,rgba(15,14,13,0.35)_50%,rgba(15,14,13,0.05)_100%)]" />
 
       {/* Particle canvas — rule: aria-labels for non-text content */}
       <canvas
@@ -135,23 +121,20 @@ export default function Hero() {
           {/* Status badge */}
           <div className="section-tag mb-5 inline-flex">
             <span className="w-1.5 h-1.5 rounded-full bg-burnt-500 animate-pulse" />
-            Now in Patna · India's First AI Real Estate Studio
+            The AI-Powered Real Estate Marketing Studio
           </div>
 
           {/* Display headline */}
-          <h1
+          <ScrambleHeading
+            as="h1"
             className="section-heading-light mb-6"
             style={{ fontSize: 'clamp(2.4rem, 2rem + 4vw, 4rem)', lineHeight: 1.05 }}
-          >
-            Sell Properties Faster
-            <br />
-            <span className="text-burnt-500">with AI-Powered</span>
-            <br />
-            Marketing
-          </h1>
+            text={'Sell Properties Faster\nwith AI-Powered\nMarketing'}
+            highlight="with AI-Powered"
+          />
 
           <p className="section-sub-light text-lg max-w-xl">
-            Saynetics Advisors pairs cinematic visuals, precision Facebook ads, and an AI agent that follows up on every lead within minutes, turning listings into closed deals.
+            Saynetics Advisors pairs AI-generated cinematic video, immersive AR tours, and an AI agent that follows up on every lead within minutes, turning listings into closed deals.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4 items-center">
@@ -179,7 +162,7 @@ export default function Hero() {
             {['No long-term contracts', '48-hr video delivery', 'Dedicated account manager'].map(f => (
               <span
                 key={f}
-                className="flex items-center gap-2 text-white/50 text-xs tracking-wider uppercase"
+                className="flex items-center gap-2 text-white/65 text-xs tracking-wider uppercase"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
                 <span className="w-4 h-0.5 bg-burnt-500/60 inline-block" />

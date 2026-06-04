@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
 import { ContainerScroll } from '@/components/ui/container-scroll-animation'
 
 interface Msg { id: number; from: 'bot' | 'user'; text: string }
 
 const script: { from: 'bot' | 'user'; text: string }[] = [
-  { from: 'bot',  text: 'Hello! 👋 I\'m Sayna, your AI property assistant. Are you looking for a property in Patna?' },
+  { from: 'bot',  text: 'Hello! 👋 I\'m Sayna, your AI property assistant. Are you looking to buy a new home?' },
   { from: 'user', text: 'Yes, looking for a 3BHK. Budget around ₹80 lakhs.' },
-  { from: 'bot',  text: 'Great choice! Two options for you:\n\n🏠 Option A · Rajendra Nagar, 3BHK, 1,450 sq ft, premium society\n🏠 Option B · Boring Road, 3BHK, 1,280 sq ft, ready to move\n\nWhich interests you more?' },
-  { from: 'user', text: 'Tell me more about the Rajendra Nagar one.' },
-  { from: 'bot',  text: 'Rajendra Nagar 3BHK · 1,450 sq ft\nPrice: ₹75L to ₹82L\n\nModular kitchen, 24x7 security, covered parking, rooftop garden, 2 min from highway.\n\nShall I schedule a site visit this weekend? 🗓️' },
+  { from: 'bot',  text: 'Great choice! Two options for you:\n\n🏠 Option A · Riverside Heights, 3BHK, 1,450 sq ft, premium society\n🏠 Option B · Parkview Residences, 3BHK, 1,280 sq ft, ready to move\n\nWhich interests you more?' },
+  { from: 'user', text: 'Tell me more about the first one.' },
+  { from: 'bot',  text: 'Riverside Heights 3BHK · 1,450 sq ft\nPrice: ₹75L to ₹82L\n\nModular kitchen, 24x7 security, covered parking, rooftop garden, 2 min from highway.\n\nShall I schedule a site visit this weekend? 🗓️' },
   { from: 'user', text: 'Yes, Saturday works for me.' },
   { from: 'bot',  text: '✅ Confirmed for Saturday! Our agent will call you in 15 minutes to set the exact time. See you there! 🏡' },
 ]
@@ -31,9 +31,9 @@ export default function ChatDemo() {
   const [done, setDone]           = useState(false)
   const [input, setInput]         = useState('')
   const [inputTyping, setInputTyping] = useState(false)
-  const [started, setStarted]     = useState(false)   // has the script ever started?
   const messagesRef = useRef<HTMLDivElement>(null)
   const sectionRef  = useRef<HTMLElement>(null)
+  const startedRef  = useRef(false)   // single-run guard (ref so it never re-triggers the effect)
   const idRef       = useRef(0)
   const timers      = useRef<ReturnType<typeof setTimeout>[]>([])
   const prefersReduced = useReducedMotion()
@@ -64,26 +64,17 @@ export default function ChatDemo() {
     })
   }, [prefersReduced])
 
-  /* ── Start the script only when scrolled into view ── */
+  /* ── Start the script once, when the chat scrolls into view ── */
+  const inView = useInView(sectionRef, { once: true, amount: 0.15 })
   useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return
+    if (inView && !startedRef.current) {
+      startedRef.current = true
+      playScript()
+    }
+  }, [inView, playScript])
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) {
-          setStarted(true)
-          // Small delay so user sees the chat window first
-          const warmup = setTimeout(() => playScript(), 400)
-          timers.current.push(warmup)
-        }
-      },
-      { threshold: 0.25 }   // trigger when 25% of section is visible
-    )
-    observer.observe(section)
-    return () => { observer.disconnect(); clearTimers() }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, playScript])
+  /* Clear any pending timers only on unmount */
+  useEffect(() => clearTimers, [])
 
   // Scroll only the inner message list — NOT the page (scrollIntoView would yank the page down)
   useEffect(() => {
@@ -194,7 +185,7 @@ export default function ChatDemo() {
             className="flex-1 min-h-0 overflow-y-auto p-5 flex flex-col gap-3 bg-cream-50"
           >
             {/* Idle state — shown before scroll triggers the script */}
-            {!started && msgs.length === 0 && (
+            {msgs.length === 0 && !typing && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

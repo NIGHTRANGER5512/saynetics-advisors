@@ -2,6 +2,7 @@ import { type ReactNode } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ClipboardList, Camera, Megaphone, MessagesSquare, Handshake } from 'lucide-react'
 import { ExpandingCards, type CardItem } from '@/components/ui/expanding-cards'
+import { ScrambleHeading } from '@/components/ui/scramble-heading'
 
 /* number badge + lucide icon */
 const stepIcon = (n: string, Icon: typeof ClipboardList): ReactNode => (
@@ -19,14 +20,14 @@ const steps: CardItem[] = [
     icon: stepIcon('01', ClipboardList), linkHref: '#contact',
   },
   {
-    id: '02', title: 'We Produce & Shoot',
-    description: 'Our team visits for drone footage, photography, and cinematic walkthroughs, delivered in 48 hours.',
+    id: '02', title: 'We Generate Your Video',
+    description: 'We craft photorealistic, AI-generated cinematic walkthroughs and virtual staging from your photos, delivered in 48 hours.',
     imgSrc: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=60',
     icon: stepIcon('02', Camera), linkHref: '#contact',
   },
   {
-    id: '03', title: 'Ads Go Live & Leads Flow In',
-    description: 'Precisely targeted Facebook and Instagram ads reach verified home-seekers in your area immediately.',
+    id: '03', title: 'Campaigns Go Live & Leads Flow In',
+    description: 'Your video and AR tours go live across AI-optimised digital campaigns, reaching verified home-seekers in your area immediately.',
     imgSrc: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=60',
     icon: stepIcon('03', Megaphone), linkHref: '#contact',
   },
@@ -67,16 +68,12 @@ export default function HowItWorks() {
           <motion.div {...fadeUp(0)} className="editorial-rule" aria-hidden="true" />
 
           {/* Heading — ink, Space Grotesk, matching site style */}
-          <motion.h2
-            {...fadeUp(0.05)}
-            className="section-heading section-heading-ink"
-          >
-            Five Steps from{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-burnt-500">Listing</span>
-            </span>{' '}
-            to Sold
-          </motion.h2>
+          <ScrambleHeading
+            as="h2"
+            className="section-heading-ink"
+            text="Five Steps from Listing to Sold"
+            highlight="Listing"
+          />
 
           <motion.p {...fadeUp(0.1)} className="section-sub">
             Our end-to-end system is built for busy agents and developers who want results without complexity.

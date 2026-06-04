@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import * as THREE from 'three'
+import { ScrambleHeading } from '@/components/ui/scramble-heading'
 
 export default function ThreeViewer() {
   const mountRef = useRef<HTMLDivElement>(null)
@@ -62,12 +63,12 @@ export default function ThreeViewer() {
     const edges = new THREE.LineSegments(edgesGeo, edgesMat)
     scene.add(edges)
 
-    const clock = new THREE.Clock()
+    const start = performance.now()
     let animId: number
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
-      const t = clock.getElapsedTime()
+      const t = (performance.now() - start) / 1000 // seconds — avoids deprecated THREE.Clock
       if (!prefersReduced) {
         box.rotation.y = t * 0.55
         box.rotation.x = t * 0.22
@@ -123,7 +124,7 @@ export default function ThreeViewer() {
         >
           {/* graphic rule instead of eyebrow label (taste-skill: limit eyebrows) */}
           <div className="editorial-rule" aria-hidden="true" />
-          <h2 className="section-heading-light">Walk Through Properties in Augmented Reality</h2>
+          <ScrambleHeading as="h2" className="section-heading-light" text="Walk Through Properties in Augmented Reality" highlight="Augmented Reality" />
           <p className="section-sub-light">Place any property directly into your space. No app download needed, it runs in your browser on any modern smartphone.</p>
         </motion.div>
 
