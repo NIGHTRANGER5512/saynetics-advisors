@@ -110,7 +110,7 @@ export const ExpandingCards = React.forwardRef<HTMLUListElement, ExpandingCardsP
 
                 {/* Rotated title — desktop only */}
                 <span
-                  className="hidden origin-center -rotate-90 whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.2em] text-ink-300 md:block"
+                  className="hidden origin-center -rotate-90 whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.2em] text-ink-400 md:block"
                   style={{ fontFamily: "JetBrains Mono, monospace" }}
                 >
                   {item.title}
@@ -193,7 +193,7 @@ export const ExpandingCards = React.forwardRef<HTMLUListElement, ExpandingCardsP
                       <motion.p
                         variants={textItem}
                         className="text-[0.78rem] leading-relaxed text-ink-400 line-clamp-3"
-                        style={{ fontFamily: "Manrope, sans-serif" }}
+                        style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
                       >
                         {item.description}
                       </motion.p>

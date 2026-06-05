@@ -66,9 +66,9 @@ export default {
         },
       },
       fontFamily: {
-        // Space Grotesk display + Manrope body + JetBrains Mono labels
+        // Space Grotesk display + Plus Jakarta Sans body + JetBrains Mono labels
         display: ['Space Grotesk', 'system-ui', 'sans-serif'],
-        sans:    ['Manrope', 'system-ui', 'sans-serif'],
+        sans:    ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       borderRadius: {

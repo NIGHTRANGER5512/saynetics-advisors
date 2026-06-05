@@ -8,7 +8,7 @@ import { ScrambleHeading } from '@/components/ui/scramble-heading'
 const stepIcon = (n: string, Icon: typeof ClipboardList): ReactNode => (
   <span className="flex items-center gap-2.5">
     <Icon size={20} strokeWidth={1.75} />
-    <span style={{ fontFamily: 'JetBrains Mono, monospace' }} className="text-[10px] tracking-widest text-ink-300">{n}</span>
+    <span style={{ fontFamily: 'JetBrains Mono, monospace' }} className="text-[10px] tracking-widest text-ink-400">{n}</span>
   </span>
 )
 
@@ -96,7 +96,7 @@ export default function HowItWorks() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.35, duration: 0.5 }}
-          className="mt-5 text-center text-ink-300 text-xs tracking-widest uppercase"
+          className="mt-5 text-center text-ink-400 text-xs tracking-widest uppercase"
           style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
           Hover or tap a step to explore

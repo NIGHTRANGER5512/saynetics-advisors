@@ -197,7 +197,7 @@ export default function LeadForm() {
 
             {/* Founding-client invitation (honest for a brand-new firm) */}
             <div className="mt-8 p-5 rounded-lg border border-cream-300 bg-white shadow-depth-2">
-              <p className="text-xs tracking-widest uppercase text-ink-300 mb-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+              <p className="text-xs tracking-widest uppercase text-ink-400 mb-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                 Now onboarding founding clients
               </p>
               <p className="text-ink-500 text-sm leading-relaxed">
@@ -220,7 +220,7 @@ export default function LeadForm() {
               {[1, 2, 3].map(n => (
                 <div key={n} className="flex items-center gap-2 flex-1">
                   <div className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-200 ${
-                    step >= n ? 'bg-burnt-500 text-white raised' : 'bg-cream-200 text-ink-300 border border-cream-300'
+                    step >= n ? 'bg-burnt-500 text-white raised' : 'bg-cream-200 text-ink-400 border border-cream-300'
                   }`} style={{ fontFamily: 'JetBrains Mono, monospace' }} aria-hidden="true">
                     {step > n
                       ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
@@ -385,7 +385,7 @@ export default function LeadForm() {
                         { label: 'City',    val: vals.city },
                       ] as const).map(r => (
                         <div key={r.label} className="flex justify-between text-sm">
-                          <dt className="text-ink-300 text-xs uppercase tracking-widest" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{r.label}</dt>
+                          <dt className="text-ink-400 text-xs uppercase tracking-widest" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{r.label}</dt>
                           <dd className="text-ink font-medium text-right max-w-[60%]">{r.val || '·'}</dd>
                         </div>
                       ))}
@@ -446,5 +446,5 @@ function Field({ id, label, required, error, children }: {
 }
 
 function inp(hasErr: boolean) {
-  return `w-full bg-cream-100 border ${hasErr ? 'border-red-400 focus:border-red-500' : 'border-cream-300 focus:border-burnt-500'} rounded px-3 py-2.5 text-sm text-ink placeholder-ink-300 outline-none transition-colors appearance-none min-h-[44px]`
+  return `w-full bg-cream-100 border ${hasErr ? 'border-red-400 focus:border-red-500' : 'border-cream-300 focus:border-burnt-500'} rounded px-3 py-2.5 text-sm text-ink placeholder-ink-400 outline-none transition-colors appearance-none min-h-[44px]`
 }

@@ -3,13 +3,15 @@ import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import StatsBar from './components/StatsBar'
-import Services from './components/Services'
+import Services from './components/ServicesStacked'
 import StagingSlider from './components/StagingSlider'
 import HowItWorks from './components/HowItWorks'
 import ChatDemo from './components/ChatDemo'
 import LeadForm from './components/LeadForm'
 import Footer from './components/Footer'
+import CtaBanner from './components/CtaBanner'
 import PageSkeleton from './components/PageSkeleton'
+import { GlassFilter } from './components/ui/liquid-glass'
 
 /* Lazy-load Three.js viewer — splits ~600KB out of the initial bundle */
 const ThreeViewer = lazy(() => import('./components/ThreeViewer'))
@@ -43,6 +45,8 @@ export default function App() {
 
   return (
     <>
+      {/* SVG filter for liquid glass effect — rendered once, referenced everywhere */}
+      <GlassFilter />
       <AnimatePresence>{loading && <PageSkeleton key="skeleton" />}</AnimatePresence>
 
       {/* skip-links — keyboard users jump past nav */}
@@ -60,6 +64,7 @@ export default function App() {
           <ThreeViewer />
         </Suspense>
         <ChatDemo />
+        <CtaBanner />
         <LeadForm />
       </main>
 

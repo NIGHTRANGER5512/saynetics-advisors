@@ -2,6 +2,7 @@
 // - removed "use client" and next/link (uses <a>)
 // - themed to the site accent (burnt #C55221 / amber #CC8800) on glass
 // - added single-page scroll-spy so the "lamp" tracks the section in view
+// - added isLight prop so the pill adapts to light/dark background sections
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { type LucideIcon } from "lucide-react"
@@ -18,9 +19,11 @@ interface NavBarProps {
   className?: string
   /** floating = native fixed pill (top desktop / bottom mobile). false = inline. */
   floating?: boolean
+  /** passed from Navbar — true when floating over a light/cream section */
+  isLight?: boolean
 }
 
-export function NavBar({ items, className, floating = true }: NavBarProps) {
+export function NavBar({ items, className, floating = true, isLight = false }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
 
   /* Single-page scroll-spy — the lamp follows the section you're viewing */
@@ -43,6 +46,15 @@ export function NavBar({ items, className, floating = true }: NavBarProps) {
     return () => window.removeEventListener("scroll", onScroll)
   }, [items])
 
+  /* Pill background & text adapt to section brightness */
+  const pillBg = isLight
+    ? "bg-[rgba(255,255,255,0.45)] border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.06),inset_1px_1px_1px_rgba(255,255,255,0.5)]"
+    : "bg-[rgba(15,15,15,0.35)] border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_1px_1px_1px_rgba(255,255,255,0.12)]"
+
+  const itemColor = isLight
+    ? "text-ink-600 hover:text-ink"
+    : "text-white/75 hover:text-white"
+
   return (
     <div
       className={cn(
@@ -51,10 +63,17 @@ export function NavBar({ items, className, floating = true }: NavBarProps) {
         className,
       )}
     >
-      <div className="flex items-center gap-1 rounded-full border border-white/12 bg-charcoal-900/55 px-1.5 py-1.5 backdrop-blur-xl shadow-[0_8px_28px_rgba(0,0,0,0.35),inset_1px_1px_1px_-0.5px_rgba(255,255,255,0.18)]">
+      <div
+        className={cn(
+          "flex items-center gap-1 rounded-full border px-1.5 py-1.5 backdrop-blur-xl transition-all duration-500",
+          pillBg,
+        )}
+      >
         {items.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.name
+          const activeTextColor = isLight ? "text-burnt-600 font-bold" : "text-white"
+
           return (
             <a
               key={item.name}
@@ -62,9 +81,9 @@ export function NavBar({ items, className, floating = true }: NavBarProps) {
               onClick={() => setActiveTab(item.name)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative cursor-pointer rounded-full px-5 py-2 text-sm font-semibold transition-colors",
-                "text-white/70 hover:text-white",
-                isActive && "text-white",
+                "relative cursor-pointer rounded-full px-5 py-2 text-sm font-semibold transition-all duration-500",
+                itemColor,
+                isActive && activeTextColor,
               )}
               style={{ fontFamily: "Space Grotesk, sans-serif", letterSpacing: "0.01em" }}
             >
@@ -76,7 +95,10 @@ export function NavBar({ items, className, floating = true }: NavBarProps) {
               {isActive && (
                 <motion.div
                   layoutId="tubelight-lamp"
-                  className="absolute inset-0 -z-10 w-full rounded-full bg-burnt-500/15"
+                  className={cn(
+                    "absolute inset-0 -z-10 w-full rounded-full transition-colors duration-500",
+                    isLight ? "bg-burnt-500/10" : "bg-burnt-500/15"
+                  )}
                   initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >

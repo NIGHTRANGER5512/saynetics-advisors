@@ -72,7 +72,7 @@ export default function StatsBar() {
               }
               {/* Refactoring UI: weaken the label so the number dominates hierarchy */}
               <span
-                className="text-ink-300 text-xs tracking-widest uppercase font-normal"
+                className="text-ink-400 text-xs tracking-widest uppercase font-normal"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
                 {s.label}

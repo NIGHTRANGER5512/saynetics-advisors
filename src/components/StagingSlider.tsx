@@ -135,7 +135,7 @@ export default function StagingSlider() {
               <div className="absolute bottom-3 left-3 text-xs font-mono px-2 py-1 rounded bg-ink/10 text-ink-500 border border-ink/10">BEFORE</div>
               <div className="absolute bottom-3 right-3 text-xs font-mono px-2 py-1 rounded bg-burnt-500/10 text-burnt-700 border border-burnt-200">AFTER</div>
             </div>
-            <p className="text-center text-ink-300 text-xs mt-3"
+            <p className="text-center text-ink-400 text-xs mt-3"
               style={{ fontFamily: 'JetBrains Mono, monospace' }}>
               Drag to compare · AI-powered virtual staging
             </p>
