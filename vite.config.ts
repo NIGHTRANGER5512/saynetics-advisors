@@ -35,6 +35,9 @@ function leadsApiPlugin(): Plugin {
 }
 
 export default defineConfig({
+  // Served from https://<user>.github.io/saynetics-advisors/ on GitHub Pages.
+  // Use root base for local dev so the dev server still works at /.
+  base: process.env.GITHUB_ACTIONS ? '/saynetics-advisors/' : '/',
   plugins: [react(), leadsApiPlugin()],
   resolve: {
     alias: {
