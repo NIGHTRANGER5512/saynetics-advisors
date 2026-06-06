@@ -45,6 +45,14 @@ const proofItems = [
   { icon: <IconLock />,  title: 'Your Data is Safe',     desc: 'We never share your details with third parties' },
 ]
 
+/* ── Lead delivery (FormSubmit.co — free, no account) ──────────────────────
+   • You (the firm) get every lead's full details at OWNER_EMAIL.
+   • The lead gets an automatic confirmation email (via _autoresponse).
+   SETUP: set OWNER_EMAIL below to your real inbox. The FIRST time the form is
+   submitted, FormSubmit emails OWNER_EMAIL a one-time "Activate" link — click
+   it once and all future submissions deliver automatically.                  */
+const OWNER_EMAIL = import.meta.env.VITE_OWNER_EMAIL || 'saynetics.advisors@gmail.com'
+
 export default function LeadForm() {
   const [step, setStep]           = useState(1)
   const [submitted, setSubmitted] = useState(false)
@@ -61,28 +69,40 @@ export default function LeadForm() {
   const onSubmit = async (data: Fields) => {
     setLoading(true)
     try {
-      // Replace YOUR_FORM_ID with your Formspree form ID from https://formspree.io
-      const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(OWNER_EMAIL)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
+          // lead details — shown to the firm in a clean table
           name:    data.name,
-          email:   data.email,
+          email:   data.email,   // FormSubmit sends the confirmation to this address
           phone:   data.phone,
           service: data.service,
           budget:  data.budget,
           city:    data.city,
-          _subject: `New enquiry from ${data.name} — Saynetics Advisors`,
+          // FormSubmit control fields
+          _subject: `New lead: ${data.name} — ${data.service}`,
+          _template: 'table',
+          _captcha: 'false',
+          _autoresponse:
+            `Hi ${data.name},\n\n` +
+            `Thanks for reaching out to Saynetics Advisors! We've received your enquiry and our team will contact you within 2 hours.\n\n` +
+            `Here's what you sent us:\n` +
+            `• Service: ${data.service}\n` +
+            `• Budget: ${data.budget}\n` +
+            `• City: ${data.city}\n` +
+            `• Phone: ${data.phone}\n\n` +
+            `Talk soon,\nThe Saynetics Advisors Team\n+91 92346 82722`,
         }),
       })
-      if (res.ok) {
+      const json = await res.json().catch(() => ({}))
+      if (res.ok && (json.success === 'true' || json.success === true)) {
         setSubmitted(true)
       } else {
-        const json = await res.json().catch(() => ({}))
-        toast.error((json as { error?: string }).error || 'Submission failed. Please try WhatsApp instead.')
+        toast.error('Could not send right now. Please reach us on WhatsApp instead.')
       }
     } catch {
-      toast.error('Network error. Please check your connection or reach us on WhatsApp.')
+      toast.error('Network error. Please reach us on WhatsApp.')
     } finally {
       setLoading(false)
     }
@@ -102,7 +122,7 @@ export default function LeadForm() {
             <h2 className="section-heading-ink text-2xl mb-3">You're All Set!</h2>
             <p className="text-ink-400 text-sm leading-relaxed mb-6">
               Our team will contact you within 2 hours to discuss your marketing strategy.
-              Check your WhatsApp for a confirmation message.
+              A confirmation has been sent to your email — check your inbox (and spam, just in case).
             </p>
             <a
               href="https://wa.me/919234682722?text=Hi%20Saynetics%2C%20I%20just%20submitted%20an%20enquiry%20and%20would%20love%20to%20chat!"

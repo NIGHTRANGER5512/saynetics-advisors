@@ -1,110 +1,26 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import * as THREE from 'three'
+import '@google/model-viewer'
 import { ScrambleHeading } from '@/components/ui/scramble-heading'
 
+/* model-viewer is a custom element — cast to a permissive tag so JSX accepts
+   its kebab-case + boolean attributes without fighting React's typings. */
+const MV = 'model-viewer' as unknown as React.FC<Record<string, unknown>>
+
+// real building model (served from /public/models, base-path aware for GH Pages)
+const MODEL_URL = `${import.meta.env.BASE_URL}models/building_ar.glb`
+
 export default function ThreeViewer() {
-  const mountRef = useRef<HTMLDivElement>(null)
+  const mvRef = useRef<(HTMLElement & { canActivateAR?: boolean; activateAR?: () => void }) | null>(null)
   const [showQRModal, setShowQRModal] = useState(false)
   const prefersReduced = useReducedMotion()
 
-  useEffect(() => {
-    const el = mountRef.current
-    if (!el) return
-    const w = el.clientWidth
-    const h = el.clientHeight
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    renderer.setSize(w, h)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFShadowMap
-    renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.2
-    el.appendChild(renderer.domElement)
-
-    const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100)
-    camera.position.set(3.5, 2.5, 4.5)
-    camera.lookAt(0, 0, 0)
-
-    /* Three-point lighting — threejs-webgl skill */
-    const keyLight = new THREE.DirectionalLight(0xfff8f0, 2.2)
-    keyLight.position.set(5, 10, 7.5)
-    keyLight.castShadow = true
-    scene.add(keyLight)
-
-    /* fill + rim in the locked warm family (amber / burnt) */
-    const fillLight = new THREE.DirectionalLight(0xcc8800, 0.7)
-    fillLight.position.set(-5, 2, 3)
-    scene.add(fillLight)
-
-    const rimLight = new THREE.DirectionalLight(0xc55221, 0.5)
-    rimLight.position.set(0, -3, -6)
-    scene.add(rimLight)
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3))
-
-    /* REPLACE BoxGeometry with GLTFLoader pointing to your GLB file path */
-    const geometry = new THREE.BoxGeometry(1.6, 1.6, 1.6)
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0xcc8800), /* amber — locked accent */
-      metalness: 0.25,
-      roughness: 0.35,
-    })
-    material.color.convertSRGBToLinear()
-
-    const box = new THREE.Mesh(geometry, material)
-    box.castShadow = true
-    scene.add(box)
-
-    const edgesGeo = new THREE.EdgesGeometry(geometry)
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0xc55221, transparent: true, opacity: 0.35 })
-    const edges = new THREE.LineSegments(edgesGeo, edgesMat)
-    scene.add(edges)
-
-    const start = performance.now()
-    let animId: number
-
-    const animate = () => {
-      animId = requestAnimationFrame(animate)
-      const t = (performance.now() - start) / 1000 // seconds — avoids deprecated THREE.Clock
-      if (!prefersReduced) {
-        box.rotation.y = t * 0.55
-        box.rotation.x = t * 0.22
-        box.position.y = Math.sin(t * 0.9) * 0.07
-        edges.rotation.copy(box.rotation)
-        edges.position.copy(box.position)
-      }
-      renderer.render(scene, camera)
-    }
-    animate()
-
-    const onResize = () => {
-      const nw = el.clientWidth; const nh = el.clientHeight
-      camera.aspect = nw / nh
-      camera.updateProjectionMatrix()
-      renderer.setSize(nw, nh)
-    }
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', onResize)
-      geometry.dispose(); edgesGeo.dispose()
-      material.dispose(); edgesMat.dispose()
-      renderer.dispose()
-      if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement)
-    }
-  }, [prefersReduced])
-
-  const handleAR = async () => {
-    if (navigator.xr) {
-      const supported = await navigator.xr.isSessionSupported('immersive-ar').catch(() => false)
-      if (supported) await navigator.xr.requestSession('immersive-ar')
-      else setShowQRModal(true)
+  const handleAR = () => {
+    const mv = mvRef.current
+    if (mv && mv.canActivateAR && mv.activateAR) {
+      mv.activateAR()           // launches Scene Viewer (Android) / Quick Look (iOS) / WebXR
     } else {
-      setShowQRModal(true)
+      setShowQRModal(true)      // desktop → show QR to open on a phone
     }
   }
 
@@ -122,10 +38,9 @@ export default function ThreeViewer() {
           transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 28 }}
           className="max-w-xl mb-12"
         >
-          {/* graphic rule instead of eyebrow label (taste-skill: limit eyebrows) */}
           <div className="editorial-rule" aria-hidden="true" />
           <ScrambleHeading as="h2" className="section-heading-light" text="Walk Through Properties in Augmented Reality" highlight="Augmented Reality" />
-          <p className="section-sub-light">Place any property directly into your space. No app download needed, it runs in your browser on any modern smartphone.</p>
+          <p className="section-sub-light">A real project rendered in 3D. Drag to explore it from every angle, or tap “View in AR” on your phone to place it at full scale in your space — no app download needed.</p>
         </motion.div>
 
         <motion.div
@@ -136,20 +51,50 @@ export default function ThreeViewer() {
           className="rounded-lg overflow-hidden border border-white/8"
           style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.30), 0 12px 32px rgba(0,0,0,0.35), 0 32px 64px rgba(0,0,0,0.25)' }}
         >
-          {/* aria-hidden: canvas is a 3D decoration — label provided by section heading */}
-          <div ref={mountRef} aria-hidden="true" className="w-full h-[420px] bg-charcoal-800" />
+          {/* 3D / AR model */}
+          <MV
+            ref={mvRef as unknown as React.Ref<unknown>}
+            src={MODEL_URL}
+            alt="3D model of a residential building project"
+            camera-controls={true}
+            auto-rotate={true}
+            auto-rotate-delay={500}
+            rotation-per-second="18deg"
+            interaction-prompt="auto"
+            ar={true}
+            ar-modes="webxr scene-viewer quick-look"
+            ar-scale="auto"
+            shadow-intensity="1"
+            shadow-softness="0.9"
+            exposure="1.05"
+            environment-image="neutral"
+            loading="lazy"
+            reveal="auto"
+            touch-action="pan-y"
+            style={{ width: '100%', height: '460px', backgroundColor: '#15110e', '--poster-color': '#15110e' } as React.CSSProperties}
+          >
+            {/* progress bar slot */}
+            <div slot="progress-bar" className="absolute top-0 left-0 h-0.5 bg-burnt-500" />
+            {/* loading hint */}
+            <div slot="poster" className="flex h-full w-full items-center justify-center bg-charcoal-800">
+              <span className="text-white/40 text-xs tracking-widest uppercase animate-pulse" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                Loading 3D model…
+              </span>
+            </div>
+          </MV>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-6 border-t border-white/8 bg-charcoal-800/60">
             <button onClick={handleAR} className="btn-primary w-full sm:w-auto justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
               View in AR
             </button>
-            <a href="#" className="btn-outline-white w-full sm:w-auto justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href={MODEL_URL} download className="btn-outline-white w-full sm:w-auto justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              Download Floor Plan
+              Download 3D Model
             </a>
           </div>
         </motion.div>
@@ -172,9 +117,9 @@ export default function ThreeViewer() {
               />
             </div>
             <h3 className="text-ink font-semibold text-lg mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              Open on Mobile
+              Open on Mobile for AR
             </h3>
-            <p className="text-ink-400 text-sm mb-6">Scan with your smartphone camera to launch the AR viewer directly in your mobile browser.</p>
+            <p className="text-ink-400 text-sm mb-6">AR runs on phones. Scan this with your camera to open the page on your mobile, then tap “View in AR”.</p>
             <button onClick={() => setShowQRModal(false)} className="btn-primary w-full justify-center">Close</button>
           </motion.div>
         </div>
