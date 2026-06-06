@@ -3,13 +3,12 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import ReactLenis from "lenis/react";
 import { useRef, type ReactNode } from "react";
 import { Video, Box, Sofa, MessageSquare, Monitor, ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── types ──────────────────────────────────────────────────────────────────
+// ─── types ───────────────────────────────────────────────────────────────────
 interface ServiceCard {
   id: number | string;
   title: string;
@@ -21,90 +20,111 @@ interface ServiceCard {
   iconType: string;
 }
 
-// ─── icon resolver ───────────────────────────────────────────────────────────
-const getIcon = (type: string): ReactNode => {
-  switch (type) {
-    case "video":   return <Video   className="w-6 h-6" strokeWidth={1.75} />;
-    case "home":    return <Box     className="w-6 h-6" strokeWidth={1.75} />;
-    case "staging": return <Sofa   className="w-6 h-6" strokeWidth={1.75} />;
-    case "chat":    return <MessageSquare className="w-6 h-6" strokeWidth={1.75} />;
-    case "web":     return <Monitor className="w-6 h-6" strokeWidth={1.75} />;
-    default:        return <Video   className="w-6 h-6" strokeWidth={1.75} />;
-  }
-};
-
-// ─── main component ──────────────────────────────────────────────────────────
 interface StickyServiceCardsProps {
   cards: ServiceCard[];
 }
 
-const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
-  const container = useRef<HTMLDivElement>(null);
-  const cardRefs  = useRef<(HTMLDivElement | null)[]>([]);
+// ─── icon resolver ────────────────────────────────────────────────────────────
+const getIcon = (type: string): ReactNode => {
+  switch (type) {
+    case "video":   return <Video         className="w-6 h-6" strokeWidth={1.75} />;
+    case "home":    return <Box           className="w-6 h-6" strokeWidth={1.75} />;
+    case "staging": return <Sofa         className="w-6 h-6" strokeWidth={1.75} />;
+    case "chat":    return <MessageSquare className="w-6 h-6" strokeWidth={1.75} />;
+    case "web":     return <Monitor       className="w-6 h-6" strokeWidth={1.75} />;
+    default:        return <Video         className="w-6 h-6" strokeWidth={1.75} />;
+  }
+};
+
+// ─── component ───────────────────────────────────────────────────────────────
+const SkiperServiceStack = ({ cards }: StickyServiceCardsProps) => {
+  const container  = useRef<HTMLDivElement>(null);
+  const sceneRef   = useRef<HTMLDivElement>(null);
+  const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
-      const cardEls  = cardRefs.current;
-      const total    = cardEls.length;
+      const cardEls = cardRefs.current;
+      const total   = cardEls.length;
+      const scene   = sceneRef.current;
 
-      if (!cardEls[0]) return;
+      if (!cardEls[0] || !scene) return;
 
-      // initial positions
-      gsap.set(cardEls[0], { y: "0%", scale: 1, rotation: 0, opacity: 1 });
+      // ── initial state ──────────────────────────────────────────────────────
+      gsap.set(cardEls[0], { y: "0%",    scale: 1, rotation: 0 });
       for (let i = 1; i < total; i++) {
-        if (!cardEls[i]) continue;
-        gsap.set(cardEls[i], { y: "105%", scale: 1, rotation: 0, opacity: 1 });
+        if (cardEls[i]) gsap.set(cardEls[i], { y: "105%", scale: 1, rotation: 0 });
       }
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".skiper-sticky-scene",
-          start: "top top",
-          end: `+=${window.innerHeight * (total - 1)}`,
-          pin: true,
-          scrub: 0.6,
-          pinSpacing: true,
+      // ── scroll-driven timeline ─────────────────────────────────────────────
+      // Use the ref directly (not a class selector) so it's scoped correctly.
+      const st = ScrollTrigger.create({
+        trigger:    scene,
+        start:      "top top",
+        end:        `+=${window.innerHeight * (total - 1)}`,
+        pin:        true,
+        scrub:      0.6,
+        pinSpacing: true,
+        // keep the rest of the page scrollable after the pin ends
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          const raw  = self.progress * (total - 1); // e.g. 0‥4
+          const step = Math.floor(raw);              // which transition we're in
+          const frac = raw - step;                   // 0‥1 within that transition
+
+          for (let i = 0; i < total; i++) {
+            const el = cardEls[i];
+            if (!el) continue;
+
+            if (i < step) {
+              // already passed — stay shrunk/rotated
+              gsap.set(el, { y: "0%", scale: 0.72, rotation: 4 });
+            } else if (i === step && step < total - 1) {
+              // currently going out
+              gsap.set(el, {
+                y:        "0%",
+                scale:    gsap.utils.interpolate(1,    0.72, frac),
+                rotation: gsap.utils.interpolate(0,    4,    frac),
+              });
+            } else if (i === step + 1) {
+              // currently coming in
+              gsap.set(el, {
+                y:        `${gsap.utils.interpolate(105, 0, frac)}%`,
+                scale:    1,
+                rotation: 0,
+              });
+            } else {
+              // not yet reached — stay below
+              gsap.set(el, { y: "105%", scale: 1, rotation: 0 });
+            }
+          }
         },
       });
 
-      for (let i = 0; i < total - 1; i++) {
-        const cur  = cardEls[i];
-        const next = cardEls[i + 1];
-        if (!cur || !next) continue;
-
-        // outgoing card: shrink + rotate (skiper signature)
-        tl.to(cur,  { scale: 0.72, rotation: 4, duration: 1, ease: "none" }, i);
-        // incoming card: slide in from below
-        tl.to(next, { y: "0%",    duration: 1, ease: "none" },               i);
-      }
-
-      const ro = new ResizeObserver(() => ScrollTrigger.refresh());
-      if (container.current) ro.observe(container.current);
-
+      // ── cleanup — only kill THIS trigger, not the whole page ───────────────
       return () => {
-        ro.disconnect();
-        tl.kill();
-        ScrollTrigger.getAll().forEach((t) => t.kill());
+        st.kill();
       };
     },
-    { scope: container },
+    { scope: container, dependencies: [cards.length] },
   );
 
   return (
-    <div ref={container} className="relative h-full w-full">
-      {/* The sticky scene — pinned by ScrollTrigger */}
+    <div ref={container} className="relative w-full">
+      {/* scene — this is the element that gets pinned */}
       <div
-        className="skiper-sticky-scene relative flex h-screen w-full items-center justify-center overflow-hidden px-4 py-8"
+        ref={sceneRef}
+        className="relative flex h-screen w-full items-center justify-center overflow-hidden px-4 py-8"
       >
-        {/* card stack — all absolutely positioned so they overlap */}
-        <div className="relative w-full max-w-[960px] h-[480px] sm:h-[400px] md:h-[380px]">
+        {/* card stack */}
+        <div className="relative w-full max-w-[960px] h-[480px] sm:h-[420px] md:h-[380px]">
           {cards.map((card, i) => {
             const num = String(i + 1).padStart(2, "0");
             return (
               <div
                 key={card.id}
                 ref={(el) => { cardRefs.current[i] = el; }}
-                className="absolute inset-0 w-full h-full"
+                className="absolute inset-0 w-full h-full will-change-transform"
               >
                 <div
                   className="group relative flex flex-col md:flex-row w-full h-full overflow-hidden
@@ -126,8 +146,8 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
                       className="absolute top-6 right-6 font-black leading-none select-none pointer-events-none"
                       style={{
                         fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: "3.5rem",
-                        color: `${card.color}1f`,
+                        fontSize:   "3.5rem",
+                        color:      `${card.color}1f`,
                       }}
                     >
                       {num}
@@ -136,7 +156,11 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center ring-1"
-                        style={{ color: card.color, borderColor: `${card.color}40`, backgroundColor: `${card.color}1a` }}
+                        style={{
+                          color:           card.color,
+                          borderColor:     `${card.color}40`,
+                          backgroundColor: `${card.color}1a`,
+                        }}
                       >
                         {getIcon(card.iconType)}
                       </div>
@@ -162,12 +186,12 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
                     <div className="mt-8">
                       <a
                         href={card.link}
-                        className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold
-                          tracking-wider uppercase text-white transition-all duration-300 hover:gap-3"
+                        className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs
+                          font-semibold tracking-wider uppercase text-white transition-all duration-300 hover:gap-3"
                         style={{
-                          fontFamily: "Space Grotesk, sans-serif",
+                          fontFamily:  "Space Grotesk, sans-serif",
                           backgroundColor: card.color,
-                          boxShadow: `0 8px 24px ${card.color}40`,
+                          boxShadow:   `0 8px 24px ${card.color}40`,
                         }}
                       >
                         Learn more
@@ -184,13 +208,11 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
                       alt={card.title}
                       loading="lazy"
                     />
-                    {/* gradient blend */}
                     <div
                       aria-hidden
                       className="absolute inset-0 md:bg-[linear-gradient(90deg,#1b1714_0%,rgba(27,23,20,0.15)_42%,transparent_100%)]
                         bg-[linear-gradient(0deg,#1b1714_0%,transparent_55%)]"
                     />
-                    {/* warm accent wash */}
                     <div
                       aria-hidden
                       className="absolute inset-0 mix-blend-soft-light"
@@ -204,11 +226,11 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
         </div>
 
         {/* progress dots */}
-        <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+        <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
           {cards.map((card, i) => (
             <div
               key={card.id}
-              className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+              className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: i === 0 ? card.color : "rgba(255,255,255,0.25)" }}
             />
           ))}
@@ -218,11 +240,4 @@ const StickyServiceCards = ({ cards }: StickyServiceCardsProps) => {
   );
 };
 
-// ─── wrapper with Lenis smooth scroll ────────────────────────────────────────
-const SkiperServiceStack = ({ cards }: StickyServiceCardsProps) => (
-  <ReactLenis root options={{ lerp: 0.08, duration: 1.2 }}>
-    <StickyServiceCards cards={cards} />
-  </ReactLenis>
-);
-
-export { SkiperServiceStack, StickyServiceCards, type ServiceCard };
+export { SkiperServiceStack, type ServiceCard };
