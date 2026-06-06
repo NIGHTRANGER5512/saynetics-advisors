@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { ScrambleHeading } from '@/components/ui/scramble-heading'
-import { CardsParallax } from '@/components/ui/scroll-cards'
+import { SkiperServiceStack } from '@/components/ui/skiper17'
 import { cardData } from '@/lib/utils'
 
 export default function ServicesStacked() {
@@ -11,7 +11,7 @@ export default function ServicesStacked() {
       {/* Faint vanishing-point grid */}
       <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-30 pointer-events-none" />
 
-      {/* Heading Container (Scrolls away naturally before the sticky stack starts) */}
+      {/* Heading — scrolls away naturally before the sticky stack starts */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12">
         <motion.div
           initial={{ opacity: 0, y: prefersReduced ? 0 : 28 }}
@@ -35,9 +35,9 @@ export default function ServicesStacked() {
         </motion.div>
       </div>
 
-      {/* Sticky Cards container */}
-      <div className="w-full pb-24">
-        <CardsParallax items={cardData} />
+      {/* Skiper17 — GSAP scroll-triggered card stack with rotation */}
+      <div className="w-full">
+        <SkiperServiceStack cards={cardData} />
       </div>
     </section>
   )
