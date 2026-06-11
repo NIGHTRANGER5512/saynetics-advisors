@@ -7,9 +7,9 @@ export default function ServicesStacked() {
   const prefersReduced = useReducedMotion()
 
   return (
-    <section id="services" className="relative bg-charcoal-900 overflow-hidden">
-      {/* Faint vanishing-point grid */}
-      <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-30 pointer-events-none" />
+    <section id="services" className="relative bg-charcoal-900">
+      {/* Faint vanishing-point grid — clipped to heading area only */}
+      <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-30 pointer-events-none overflow-hidden" style={{ clipPath: 'inset(0)' }} />
 
       {/* Heading — scrolls away naturally before the sticky stack starts */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12">
