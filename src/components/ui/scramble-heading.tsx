@@ -1,9 +1,12 @@
-// ScrambleHeading — uses TextEffect (blur preset) for section headings.
+// ScrambleHeading — uses TextEffect for section headings.
 // Triggers when the element scrolls into view. Highlighted words get
 // the brand burnt-orange colour (#d96a3a).
+// Mobile perf: the 'blur' preset animates filter: blur() per word (slow on
+// phone GPUs) — touch devices get the transform-based 'slide' preset instead.
 import { useRef, type ElementType, type CSSProperties } from 'react'
 import { useInView, useReducedMotion } from 'framer-motion'
 import { TextEffect } from '@/components/ui/text-effect'
+import { useIsCoarsePointer } from '@/lib/utils'
 
 interface AnimatedHeadingProps {
   text: string
@@ -23,6 +26,8 @@ export function AnimatedHeading({
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, amount: 0.4 })
   const reduce = useReducedMotion()
+  const coarse = useIsCoarsePointer()
+  const preset = coarse ? 'slide' : 'blur'
 
   const hlSet  = highlight ? new Set(highlight.split(' ')) : null
   const lines  = text.split('\n')
@@ -41,7 +46,7 @@ export function AnimatedHeading({
                 <TextEffect
                   as='span'
                   per='word'
-                  preset='blur'
+                  preset={preset}
                   trigger={reduce ? true : inView}
                   delay={li * 0.1}
                 >
@@ -54,7 +59,7 @@ export function AnimatedHeading({
                     <TextEffect
                       as='span'
                       per='word'
-                      preset='blur'
+                      preset={preset}
                       trigger={reduce ? true : inView}
                       delay={li * 0.1 + wi * 0.03}
                     >

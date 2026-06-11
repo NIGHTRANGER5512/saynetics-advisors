@@ -62,7 +62,9 @@ export function ShaderAnimation() {
     scene.add(mesh)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+    // Mobile perf: render at 1x on touch devices (DPR-3 phones at 1.5 = 2.25x work)
+    const coarse = window.matchMedia("(pointer: coarse)").matches
+    renderer.setPixelRatio(coarse ? 1 : Math.min(window.devicePixelRatio, 1.5))
     container.appendChild(renderer.domElement)
 
     const onWindowResize = () => {
@@ -75,18 +77,32 @@ export function ShaderAnimation() {
     onWindowResize()
     window.addEventListener("resize", onWindowResize, false)
 
+    /* Pause the GPU loop whenever the banner scrolls out of view — otherwise
+       it keeps burning battery for the rest of the session. */
+    let visible = true
+    let running = false
+
     const animate = () => {
+      if (!visible) { running = false; return }
       const animationId = requestAnimationFrame(animate)
+      running = true
       uniforms.time.value += 0.05
       renderer.render(scene, camera)
       if (sceneRef.current) sceneRef.current.animationId = animationId
     }
+
+    const vio = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting
+      if (visible && !running) animate()
+    }, { threshold: 0 })
+    vio.observe(container)
 
     sceneRef.current = { renderer, uniforms, animationId: 0 }
     animate()
 
     return () => {
       window.removeEventListener("resize", onWindowResize)
+      vio.disconnect()
       if (sceneRef.current) {
         cancelAnimationFrame(sceneRef.current.animationId)
         if (container && sceneRef.current.renderer.domElement) {

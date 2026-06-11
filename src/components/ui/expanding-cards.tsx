@@ -61,12 +61,14 @@ export const ExpandingCards = React.forwardRef<HTMLUListElement, ExpandingCardsP
         ref={ref}
         className={cn(
           "w-full max-w-6xl gap-2.5 grid h-[600px] md:h-[480px]",
-          "transition-[grid-template-columns,grid-template-rows] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+          "transition-[grid-template-columns,grid-template-rows] ease-[cubic-bezier(0.4,0,0.2,1)]",
           className,
         )}
         style={{
           ...gridStyle,
           ...(isDesktop ? { gridTemplateRows: "1fr" } : { gridTemplateColumns: "1fr" }),
+          // grid-template animation is layout-bound: keep it brisk on phones
+          transitionDuration: isDesktop ? "500ms" : "320ms",
         }}
         {...props}
       >

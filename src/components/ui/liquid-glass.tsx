@@ -1,6 +1,5 @@
-"use client";
-
 import React from "react";
+import { useIsCoarsePointer } from "@/lib/utils";
 
 // Types
 interface GlassEffectProps {
@@ -29,6 +28,12 @@ export const GlassEffect: React.FC<GlassEffectProps> = ({
   bgOverlay,
   blurAmount = "20px",
 }) => {
+  /* Mobile perf: SVG displacement filters on fixed, always-on-screen chips are
+     repainted every scroll frame and are slow/buggy on phone GPUs (esp. iOS).
+     On coarse pointers we drop the distortion and use a lighter blur. */
+  const coarse = useIsCoarsePointer();
+  const effectiveBlur = coarse ? "10px" : blurAmount;
+
   const glassStyle = {
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
     transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
@@ -41,14 +46,13 @@ export const GlassEffect: React.FC<GlassEffectProps> = ({
       style={glassStyle}
     >
       {/* Glass Layers */}
-      {/* 1. Backdrop refraction (filter: url(#glass-distortion) and blur) */}
+      {/* 1. Backdrop refraction (SVG distortion desktop-only) */}
       <div
         className="absolute inset-0 z-0 overflow-hidden rounded-inherit"
         style={{
-          backdropFilter: `blur(${blurAmount}) saturate(180%)`,
-          WebkitBackdropFilter: `blur(${blurAmount}) saturate(180%)`,
-          filter: "url(#glass-distortion)",
-          isolation: "isolate",
+          backdropFilter: `blur(${effectiveBlur}) saturate(180%)`,
+          WebkitBackdropFilter: `blur(${effectiveBlur}) saturate(180%)`,
+          ...(coarse ? {} : { filter: "url(#glass-distortion)", isolation: "isolate" as const }),
         }}
       />
       {/* 2. Glass Base overlay (semi-transparent tint) */}

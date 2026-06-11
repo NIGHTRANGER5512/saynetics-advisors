@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import { ScrambleHeading } from '@/components/ui/scramble-heading'
+import { isCoarsePointer } from '@/lib/utils'
 /* Direct import (lightweight self-contained WebGL shader) so the hero
    background is ALWAYS visible — no lazy chunk that could fail to load */
 import { RaycastAnimatedBackground } from '@/components/ui/raycast-animated-background'
@@ -17,7 +18,9 @@ export default function Hero() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || prefersReduced) return
+    // Skip on touch devices: no mouse = the interactive lines never appear,
+    // so the O(n²) particle loop would be pure battery drain on phones.
+    if (!canvas || prefersReduced || isCoarsePointer()) return
     const ctx = canvas.getContext('2d')!
     let animId: number
     let particles: Particle[] = []

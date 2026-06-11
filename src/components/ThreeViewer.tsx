@@ -110,7 +110,7 @@ export default function ThreeViewer() {
           >
             <div className="w-40 h-40 mx-auto mb-6 rounded overflow-hidden border border-cream-300 bg-white">
               <img
-                src={`https://chart.googleapis.com/chart?cht=qr&chs=160x160&chl=${encodeURIComponent(window.location.href)}&choe=UTF-8`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(window.location.href)}`}
                 alt="QR code to open this page on mobile for AR viewing"
                 className="w-full h-full object-contain"
                 loading="lazy"

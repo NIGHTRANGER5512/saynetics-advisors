@@ -83,15 +83,14 @@ function ServiceCardItem({
           style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }}
         />
 
-        {/* ── Content panel ── */}
-        <div className="relative z-20 flex flex-col justify-between p-8 sm:p-10 md:w-[56%]">
+        {/* ── Content panel — compact on phones so nothing clips ── */}
+        <div className="relative z-20 flex flex-col justify-between p-5 sm:p-10 md:w-[56%] min-h-0">
           {/* watermark number */}
           <span
             aria-hidden
-            className="absolute top-6 right-6 font-black leading-none select-none pointer-events-none"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 font-black leading-none select-none pointer-events-none text-[2.25rem] sm:text-[3.5rem]"
             style={{
               fontFamily: "'Space Grotesk', sans-serif",
-              fontSize:   "3.5rem",
               color:      `${card.color}1f`,
             }}
           >
@@ -114,17 +113,17 @@ function ServiceCardItem({
             </span>
           </div>
 
-          <div className="flex flex-col gap-3 mt-7">
+          <div className="flex flex-col gap-2 sm:gap-3 mt-4 sm:mt-7">
             <h3
-              className="text-white font-bold text-2xl sm:text-[1.75rem] leading-tight"
+              className="text-white font-bold text-xl sm:text-[1.75rem] leading-tight"
               style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.015em" }}
             >
               {card.title}
             </h3>
-            <p className="text-white/75 text-[15px] leading-relaxed">{card.description}</p>
+            <p className="text-white/75 text-sm sm:text-[15px] leading-relaxed">{card.description}</p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-5 sm:mt-8">
             <a
               href={card.link}
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold
@@ -142,7 +141,7 @@ function ServiceCardItem({
         </div>
 
         {/* ── Image panel ── */}
-        <div className="relative md:w-[44%] h-44 md:h-auto overflow-hidden">
+        <div className="relative md:w-[44%] h-28 sm:h-44 md:h-auto overflow-hidden">
           <img
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             src={card.src}
@@ -184,11 +183,12 @@ const SkiperServiceStack = ({ cards }: Props) => {
       style={{ height: `${cards.length * 100}vh` }}
       className="relative"
     >
-      {/* Sticky scene — stays fixed in view while the track scrolls past */}
-      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden px-4 py-8">
+      {/* Sticky scene — h-[100svh] (not h-screen) so the collapsing mobile
+          URL bar doesn't resize the scene mid-scroll and cause a jump */}
+      <div className="sticky top-0 flex h-[100svh] w-full items-center justify-center overflow-hidden px-4 py-8">
 
-        {/* Card stack container */}
-        <div className="relative w-full max-w-[960px] h-[480px] sm:h-[420px] md:h-[380px]">
+        {/* Card stack container — taller on phones (stacked column layout) */}
+        <div className="relative w-full max-w-[960px] h-[520px] sm:h-[420px] md:h-[380px]">
           {cards.map((card, i) => (
             <ServiceCardItem
               key={card.id}
@@ -200,8 +200,8 @@ const SkiperServiceStack = ({ cards }: Props) => {
           ))}
         </div>
 
-        {/* Progress dots */}
-        <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
+        {/* Progress dots — desktop only (overlap the card edge on phones) */}
+        <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-2 z-10">
           {cards.map((card) => (
             <div
               key={card.id}

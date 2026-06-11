@@ -13,57 +13,58 @@ const items: NavItem[] = [
 ]
 
 /* ── Detect whether the navbar is floating over a light section ──────────
-   We sample the colour of the pixel 80px below the top of the page at the
-   horizontal centre using getComputedStyle + getBoundingClientRect on each
-   known section.  This is pure DOM — no canvas, no IntersectionObserver
-   complexity — and fires on every scroll tick.                             */
-const LIGHT_SECTIONS = ['stats', 'how-it-works', 'portfolio', 'contact']
-
+   Perf-safe version: each section's background luminance is computed ONCE
+   (and on resize), so the scroll handler only does cheap rect reads — and
+   it's rAF-throttled, so at most one check per frame. The old approach ran
+   elementFromPoint + getComputedStyle on every scroll event (forced style
+   recalc = visible jank on phones).                                        */
 function useLightBackground(): boolean {
   const [isLight, setIsLight] = useState(false)
 
   useEffect(() => {
     const NAV_Y = 60 // px from top where navbar pills sit
+    type Entry = { el: Element; light: boolean }
+    let entries: Entry[] = []
+    let ticking = false
 
-    const check = () => {
-      // Walk through elements at the sample point
-      const el = document.elementFromPoint(window.innerWidth / 2, NAV_Y)
-      if (!el) return
-
-      // Climb ancestors until we find a section
-      let node: Element | null = el
-      while (node && node !== document.documentElement) {
-        const bg = getComputedStyle(node).backgroundColor
-        // Parse rgb(a) → luminance check
-        const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    const collect = () => {
+      entries = Array.from(
+        document.querySelectorAll('main > section, main > div, footer'),
+      ).map(el => {
+        const m = getComputedStyle(el).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+        let light = false
         if (m) {
-          const r = +m[1], g = +m[2], b = +m[3]
-          // Relative luminance (WCAG formula, simplified)
-          const lum = 0.299 * r + 0.587 * g + 0.114 * b
-          if (lum > 30) { // not transparent / not near-black
-            setIsLight(lum > 160) // cream/paper sections are ~245–250
-            return
-          }
+          const lum = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3]
+          light = lum > 160 // cream/paper sections are ~245–250
         }
-        node = node.parentElement
-      }
-
-      // Fallback: check section IDs
-      const sectionInView = LIGHT_SECTIONS.some(id => {
-        const el = document.getElementById(id)
-        if (!el) return false
-        const rect = el.getBoundingClientRect()
-        return rect.top <= NAV_Y && rect.bottom >= NAV_Y
+        return { el, light }
       })
-      setIsLight(sectionInView)
     }
 
+    const check = () => {
+      ticking = false
+      const hit = entries.find(({ el }) => {
+        const r = el.getBoundingClientRect()
+        return r.top <= NAV_Y && r.bottom >= NAV_Y
+      })
+      setIsLight(hit?.light ?? false)
+    }
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(check)
+      }
+    }
+    const onResize = () => { collect(); onScroll() }
+
+    collect()
     check()
-    window.addEventListener('scroll', check, { passive: true })
-    window.addEventListener('resize', check, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
     return () => {
-      window.removeEventListener('scroll', check)
-      window.removeEventListener('resize', check)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
     }
   }, [])
 

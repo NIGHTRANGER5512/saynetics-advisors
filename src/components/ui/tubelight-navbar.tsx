@@ -26,9 +26,12 @@ interface NavBarProps {
 export function NavBar({ items, className, floating = true, isLight = false }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
 
-  /* Single-page scroll-spy — the lamp follows the section you're viewing */
+  /* Single-page scroll-spy — the lamp follows the section you're viewing.
+     rAF-throttled so layout reads happen at most once per frame (mobile perf). */
   useEffect(() => {
-    const onScroll = () => {
+    let ticking = false
+    const check = () => {
+      ticking = false
       const line = window.scrollY + window.innerHeight * 0.35
       let current = items[0].name
       for (const it of items) {
@@ -41,7 +44,13 @@ export function NavBar({ items, className, floating = true, isLight = false }: N
       }
       setActiveTab(current)
     }
-    onScroll()
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(check)
+      }
+    }
+    check()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [items])

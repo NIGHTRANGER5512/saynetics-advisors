@@ -1,8 +1,28 @@
+import { useEffect, useState } from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+/* ── Mobile / touch detection ─────────────────────────────────────────────
+   "pointer: coarse" = primary input is a finger (phones/tablets). We use it
+   to swap expensive effects (SVG filters, filter-blur text animations,
+   high-DPR shaders, O(n²) particle canvases) for cheap equivalents.        */
+export function isCoarsePointer(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+}
+
+export function useIsCoarsePointer(): boolean {
+  const [coarse, setCoarse] = useState(isCoarsePointer)
+  useEffect(() => {
+    const mq = window.matchMedia('(pointer: coarse)')
+    const onChange = (e: MediaQueryListEvent) => setCoarse(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return coarse
 }
 
 export const cardData = [

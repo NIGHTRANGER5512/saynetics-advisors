@@ -132,7 +132,11 @@ export const RaycastAnimatedBackground = ({ className }: ShaderBgProps) => {
     const uMouse = gl.getUniformLocation(prog, "u_mouse")
     const uMvel = gl.getUniformLocation(prog, "u_mvel")
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+    // Mobile perf: a soft fractal-noise bg doesn't need high DPR — render at
+    // 1x on touch devices (a DPR-3 phone at 1.5 = 2.25x the fragment work).
+    const dpr = window.matchMedia('(pointer: coarse)').matches
+      ? 1
+      : Math.min(window.devicePixelRatio || 1, 1.5)
     const resize = (w: number, h: number) => {
       canvas.width = Math.max(1, Math.round(w * dpr))
       canvas.height = Math.max(1, Math.round(h * dpr))
