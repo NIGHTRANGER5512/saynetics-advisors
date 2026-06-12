@@ -2,12 +2,15 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { ScrambleHeading } from '@/components/ui/scramble-heading'
 import { SkiperServiceStack } from '@/components/ui/skiper17'
 import { cardData } from '@/lib/utils'
+import MistBackground from '@/components/ui/mist-background'
 
 export default function ServicesStacked() {
   const prefersReduced = useReducedMotion()
 
   return (
     <section id="services" className="relative bg-charcoal-900">
+      {/* WebGL mist shader — ethereal flowing background */}
+      <MistBackground />
       {/* Faint vanishing-point grid — clipped to heading area only */}
       <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-30 pointer-events-none overflow-hidden" style={{ clipPath: 'inset(0)' }} />
 

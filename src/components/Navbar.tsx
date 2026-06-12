@@ -131,13 +131,11 @@ export default function Navbar() {
           style={logoStyle}
         >
           <div className="flex items-center gap-2.5">
-            <span
-              aria-hidden="true"
-              className="w-7 h-7 rounded-lg bg-gradient-to-br from-burnt-500 to-amber-500 flex items-center justify-center text-white font-bold text-sm transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              S
-            </span>
+            <img
+              src={`${import.meta.env.BASE_URL}logo.svg`}
+              alt="Saynetics logo"
+              className="w-7 h-7 flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+            />
             <span
               className="hidden sm:inline font-semibold text-base uppercase tracking-wider pr-1 whitespace-nowrap transition-colors duration-500"
               style={{ fontFamily: 'Space Grotesk, sans-serif', color: logoTextColor }}

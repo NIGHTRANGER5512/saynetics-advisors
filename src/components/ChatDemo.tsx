@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
 import { ContainerScroll } from '@/components/ui/container-scroll-animation'
+import { MeshGradient } from '@paper-design/shaders-react'
 
 interface Msg { id: number; from: 'bot' | 'user'; text: string }
 
@@ -31,6 +32,9 @@ export default function ChatDemo() {
   const [done, setDone]           = useState(false)
   const [input, setInput]         = useState('')
   const [inputTyping, setInputTyping] = useState(false)
+  const [shaderDimensions, setShaderDimensions] = useState({ width: 1920, height: 1080 })
+  const [shaderMounted, setShaderMounted] = useState(false)
+  const [shaderVisible, setShaderVisible] = useState(false)
   const messagesRef = useRef<HTMLDivElement>(null)
   const sectionRef  = useRef<HTMLElement>(null)
   const startedRef  = useRef(false)   // single-run guard (ref so it never re-triggers the effect)
@@ -76,6 +80,28 @@ export default function ChatDemo() {
   /* Clear any pending timers only on unmount */
   useEffect(() => clearTimers, [])
 
+  /* Track viewport dimensions for the MeshGradient shader */
+  useEffect(() => {
+    setShaderMounted(true)
+    const updateDimensions = () =>
+      setShaderDimensions({ width: window.innerWidth, height: window.innerHeight })
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [])
+
+  /* Pause shader when section is off-screen to save GPU */
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setShaderVisible(entry.isIntersecting),
+      { threshold: 0 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   // Scroll only the inner message list — NOT the page (scrollIntoView would yank the page down)
   useEffect(() => {
     const el = messagesRef.current
@@ -95,9 +121,43 @@ export default function ChatDemo() {
     timers.current.push(t1, t2)
   }
 
+  /* ── Shader gradient colors — tuned to match website palette ──
+     burnt-orange → amber-gold → warm-cream → charcoal accents */
+  const shaderColors = [
+    '#C55221',  // burnt orange (primary brand accent)
+    '#d96a3a',  // lighter burnt orange
+    '#CC8800',  // amber gold
+    '#faf9f6',  // warm cream (paper bg)
+    '#f3f0eb',  // paper-warm
+    '#e6a020',  // amber-400 highlight
+  ]
+
   return (
-    /* Paper cream section — chat reveals via 3D scroll-tilt (ContainerScroll) */
-    <section ref={sectionRef} aria-label="AI follow-up demo" className="bg-paper overflow-hidden">
+    /* Animated shader background section — chat reveals via 3D scroll-tilt (ContainerScroll) */
+    <section ref={sectionRef} aria-label="AI follow-up demo" className="relative overflow-hidden bg-[#e8b88a] pb-16 md:pb-24">
+      {/* ── MeshGradient shader background ── */}
+      <div className="absolute inset-0 w-full h-full [&_canvas]:!w-full [&_canvas]:!h-full [&_canvas]:!object-cover" aria-hidden="true">
+        {shaderMounted && shaderVisible && (
+          <>
+            <MeshGradient
+              width={shaderDimensions.width}
+              height={shaderDimensions.height}
+              colors={shaderColors}
+              distortion={1.2}
+              swirl={0.6}
+              grainMixer={0}
+              grainOverlay={0}
+              speed={0.4}
+              offsetX={0.08}
+            />
+            {/* Semi-transparent veil — keeps text legible over the animated gradient */}
+            <div className="absolute inset-0 pointer-events-none bg-[#faf9f6]/40" />
+          </>
+        )}
+      </div>
+
+      {/* Content layer — stacked above the shader */}
+      <div className="relative z-10">
       <ContainerScroll
         titleComponent={
           <>
@@ -271,6 +331,7 @@ export default function ChatDemo() {
           </div>
         </div>
       </ContainerScroll>
+      </div>
     </section>
   )
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import '@google/model-viewer'
 import { ScrambleHeading } from '@/components/ui/scramble-heading'
+import MistBackground from '@/components/ui/mist-background'
 
 /* model-viewer is a custom element — cast to a permissive tag so JSX accepts
    its kebab-case + boolean attributes without fighting React's typings. */
@@ -27,6 +28,8 @@ export default function ThreeViewer() {
   return (
     /* Charcoal dark section — intentional contrast after light sections */
     <section id="portfolio" aria-label="AR Property Viewer" className="relative py-24 bg-charcoal-section overflow-hidden">
+      {/* WebGL mist shader — ethereal flowing background */}
+      <MistBackground />
       {/* Perspective grid overlay — aria-hidden: decorative */}
       <div aria-hidden="true" className="absolute inset-0 perspective-grid opacity-40 pointer-events-none" />
 

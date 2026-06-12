@@ -9,8 +9,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <a href="#" className="inline-flex items-center gap-2.5 mb-5">
-              <span className="w-8 h-8 rounded bg-burnt-500 flex items-center justify-center text-white font-bold text-sm shadow-glow-orange"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>S</span>
+              <img
+                src={`${import.meta.env.BASE_URL}logo.svg`}
+                alt="Saynetics logo"
+                className="w-8 h-8"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
               <span className="text-white font-semibold text-lg uppercase tracking-wider"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Saynetics</span>
             </a>
