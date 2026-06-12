@@ -12,6 +12,7 @@ import Footer from './components/Footer'
 import CtaBanner from './components/CtaBanner'
 import PageSkeleton from './components/PageSkeleton'
 import { GlassFilter } from './components/ui/liquid-glass'
+import SayeBot from './components/SayeBot'
 
 /* Lazy-load Three.js viewer — splits ~600KB out of the initial bundle */
 const ThreeViewer = lazy(() => import('./components/ThreeViewer'))
@@ -86,6 +87,9 @@ export default function App() {
           Chat with us
         </span>
       </a>
+
+      {/* ── Saye AI Chatbot ── */}
+      <SayeBot />
     </>
   )
 }
