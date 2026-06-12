@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 
 /* ── Types ── */
 interface Message {
@@ -40,7 +41,9 @@ Pricing is custom based on services selected. Visitors should book a free consul
 - Be warm, professional, and concise.
 - Use short paragraphs, max 2-3 sentences per point.
 - If someone asks about pricing, say it's custom and suggest booking a free strategy call.
-- If someone asks to contact, share the phone number +91 92346 82722 or suggest the contact form on the website.
+- If someone asks to contact, you MUST use Markdown links so they render as clickable buttons:
+  - For a phone call, output exactly: [Call Us](tel:+919234682722)
+  - For WhatsApp, output exactly: [WhatsApp Us](https://wa.me/919234682722?text=Hi%20Saynetics)
 - You can use emojis sparingly for friendliness.
 - Never make up information not in this context.
 - If asked something unrelated to real estate or Saynetics, politely redirect.
@@ -230,7 +233,29 @@ export default function SayeBot() {
                     }`}
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                   >
-                    {m.content}
+                    {m.role === 'user' ? (
+                      m.content
+                    ) : (
+                      <ReactMarkdown
+                        components={{
+                          a: ({ node, ...props }) => (
+                            <a
+                              {...props}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block mt-2 mb-1 px-4 py-2 bg-burnt-500 text-white font-semibold rounded-lg shadow-sm hover:bg-burnt-600 transition-colors text-center w-full sm:w-auto"
+                              style={{ textDecoration: 'none' }}
+                            />
+                          ),
+                          p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                          strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                          ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                          li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    )}
                   </div>
                 </div>
               ))}
